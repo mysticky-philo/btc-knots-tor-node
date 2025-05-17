@@ -6,6 +6,7 @@ services:
     user: "100:101" # run as the tor user
     volumes:
       - tor-data:/var/lib/tor:rw # explicitly read-write
+      - ./tor/torrc:/etc/tor/torrc:ro
     networks:
       - tor-net
     security_opt:
