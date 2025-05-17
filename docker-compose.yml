@@ -37,7 +37,7 @@ services:
       - bitcoin_data:/bitcoin/.bitcoin
       - cookie_share:/cookie:rw # Expose .cookie securely
     networks:
-      - net
+      - tor-net
     security_opt:
       - no-new-privileges:true
     cap_drop:
