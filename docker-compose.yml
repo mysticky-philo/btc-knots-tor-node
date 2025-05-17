@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  tor:
+    build: ./tor
+    container_name: tor
+    restart: unless-stopped
+    user: "100:101" # run as the tor user
+    volumes:
+      - tor-data:/var/lib/tor:rw # explicitly read-write
+    networks:
+      - tor-net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    ports:
+      - "127.0.0.1:9050:9050" # Listen locally only
+
+  bitcoin-knots:
+    build: ./bitcoin-knots
+    container_name: bitcoin-knots
+    restart: unless-stopped
+    user: "1000:1000" # identified by id when bash to box
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "chown -R 1000:1000 /bitcoin/.bitcoin && exec /wait-for-tor.sh",
+      ]
+    depends_on:
+      - tor-net
+    volumes:
+      - bitcoin_data:/bitcoin/.bitcoin
+      - cookie_share:/cookie:rw # Expose .cookie securely
+    networks:
+      - net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    mem_limit: 1024m
+    cpus: "1.0"
+
+networks:
+  tor-net:
+    internal: true # Prevent other containers from accessing
+
+volumes:
+  bitcoin_data:
+  cookie_share:
+  tor-data:
