@@ -23,12 +23,6 @@ services:
     container_name: bitcoin-knots
     restart: unless-stopped
     user: "1000:1000"
-    entrypoint:
-      [
-        "/bin/sh",
-        "-c",
-        "chown -R 1000:1000 /bitcoin/.bitcoin && exec /wait-for-tor.sh",
-      ]
     depends_on:
       - tor
     volumes:
