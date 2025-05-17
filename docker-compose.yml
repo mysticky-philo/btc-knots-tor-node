@@ -24,7 +24,7 @@ services:
     build: ./bitcoin-knots
     container_name: bitcoin-knots
     restart: unless-stopped
-    user: "1000:1000" # identified by id when bash to box
+    user: "1000:1000"
     entrypoint:
       [
         "/bin/sh",
@@ -32,10 +32,10 @@ services:
         "chown -R 1000:1000 /bitcoin/.bitcoin && exec /wait-for-tor.sh",
       ]
     depends_on:
-      - tor-net
+      - tor
     volumes:
       - bitcoin_data:/bitcoin/.bitcoin
-      - cookie_share:/cookie:rw # Expose .cookie securely
+      - cookie_share:/cookie:rw
     networks:
       - tor-net
     security_opt:
