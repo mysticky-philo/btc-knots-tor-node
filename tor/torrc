@@ -1,8 +1,5 @@
+# tor/torrc
 SocksPort 0.0.0.0:9050
-
 Log notice stdout
 DataDirectory /var/lib/tor
-
-# Security: Disable unnecessary services
-ControlPort 0
-CookieAuthentication 0
+CookieAuthentication 1

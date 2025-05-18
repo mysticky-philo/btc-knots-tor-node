@@ -4,4 +4,4 @@ RUN apk add --no-cache tor
 
 COPY torrc /etc/tor/torrc
 
-CMD ["tor", "-f", "/etc/tor/torrc"]
+ENTRYPOINT ["tor"]

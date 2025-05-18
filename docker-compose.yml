@@ -1,14 +1,17 @@
 services:
   tor:
-    build: ./tor
+    image: alpine:latest
     container_name: tor
-    restart: unless-stopped
-    user: "100:101" # run as the tor user
+    command: >
+      sh -c "apk add --no-cache tor && tor -f /etc/tor/torrc"
     volumes:
-      - tor-data:/var/lib/tor:rw # explicitly read-write
       - ./tor/torrc:/etc/tor/torrc:ro
+      - tor-data:/var/lib/tor:rw
     networks:
       - tor-net
+    ports:
+      - "127.0.0.1:9050:9050"
+    restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -16,21 +19,28 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-    ports:
-      - "127.0.0.1:9050:9050" # Listen locally only
 
   bitcoin-knots:
-    build: ./bitcoin-knots
+    image: bitcoinknots/bitcoinknots:0.21.0.knots20211127
     container_name: bitcoin-knots
-    restart: unless-stopped
-    user: "1000:1000"
     depends_on:
       - tor
+    command: >
+      -proxy=tor:9050
+      -onlynet=onion
+      -listen=1
+      -listenonion=1
+      -txindex=1
+      -server=1
+      -conf=/bitcoin/.bitcoin/bitcoin.conf
+      -datadir=/bitcoin/.bitcoin
     volumes:
-      - bitcoin_data:/bitcoin/.bitcoin
-      - cookie_share:/cookie:rw
+      - bitcoin_data:/bitcoin
+      - ./bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf:ro
     networks:
       - tor-net
+    user: "1000:1000"
+    restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -41,9 +51,8 @@ services:
 
 networks:
   tor-net:
-    internal: true # Prevent other containers from accessing
+    internal: true
 
 volumes:
   bitcoin_data:
-  cookie_share:
   tor-data:
