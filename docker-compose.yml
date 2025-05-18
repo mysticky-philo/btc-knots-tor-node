@@ -2,16 +2,15 @@ services:
   tor:
     image: alpine:latest
     container_name: tor
+    restart: unless-stopped
     command: >
-      sh -c "apk add --no-cache tor && tor -f /etc/tor/torrc"
+      sh -c "apk add --no-cache tor &&
+             tor -f /etc/tor/torrc"
     volumes:
+      - /volume1/docker/tor-data:/var/lib/tor:rw
       - ./tor/torrc:/etc/tor/torrc:ro
-      - tor-data:/var/lib/tor:rw
     networks:
       - tor-net
-    ports:
-      - "127.0.0.1:9050:9050"
-    restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -19,40 +18,33 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+    ports:
+      - "127.0.0.1:9050:9050"
 
   bitcoin-knots:
-    image: bitcoinknots/bitcoinknots:0.21.0.knots20211127
+    image: kylemanna/bitcoind:latest
     container_name: bitcoin-knots
+    restart: unless-stopped
+    user: "1000:1000"
     depends_on:
       - tor
-    command: >
-      -proxy=tor:9050
-      -onlynet=onion
-      -listen=1
-      -listenonion=1
-      -txindex=1
-      -server=1
-      -conf=/bitcoin/.bitcoin/bitcoin.conf
-      -datadir=/bitcoin/.bitcoin
     volumes:
-      - bitcoin_data:/bitcoin
-      - ./bitcoin.conf:/bitcoin/.bitcoin/bitcoin.conf:ro
+      - /volume1/docker/bitcoin_data:/bitcoin
+      - /volume1/docker/cookie:/cookie
+      - ./bitcoin.conf:/home/bitcoin/.bitcoin/bitcoin.conf:ro
+    environment:
+      - BITCOIN_EXTRA_ARGS=-proxy=tor:9050
     networks:
       - tor-net
-    user: "1000:1000"
-    restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    read_only: true
+    read_only: false
     tmpfs:
       - /tmp
 
 networks:
   tor-net:
-    internal: true
-
-volumes:
-  bitcoin_data:
-  tor-data:
+    driver: bridge
+    internal: false
