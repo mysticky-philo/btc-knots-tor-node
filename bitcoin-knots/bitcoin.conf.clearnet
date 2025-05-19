@@ -1,0 +1,5 @@
+# Clearnet-only mode
+dnsseed=1
+onlynet=ipv4
+listen=1
+discover=1

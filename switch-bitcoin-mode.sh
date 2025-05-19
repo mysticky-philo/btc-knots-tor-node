@@ -1,25 +1,27 @@
 #!/bin/bash
 
-CONF_FILE="./bitcoin-knots/bitcoin.conf"
-MODE=$1
+MODE="$1"
+CONF_DIR="./bitcoin-knots"
+BASE_CONF="${CONF_DIR}/bitcoin.conf.base"
+TARGET_CONF="${CONF_DIR}/bitcoin.conf"
+CLEARNET="${CONF_DIR}/bitcoin.conf.clearnet"
+ONION="${CONF_DIR}/bitcoin.conf.onion"
 
-if [ -z "$MODE" ]; then
-  echo "Usage: $0 [clearnet|tor]"
-  exit 1
+if [ "$MODE" != "clearnet" ] && [ "$MODE" != "onion" ]; then
+    echo "Usage: $0 [clearnet|onion]"
+    exit 1
 fi
 
-if [ "$MODE" = "clearnet" ]; then
-  echo "Switching to clearnet mode..."
-  sed -i 's/^onlynet=.*/#onlynet=onion/' "$CONF_FILE"
-  sed -i 's/^proxy=.*/#proxy=tor:9050/' "$CONF_FILE"
-elif [ "$MODE" = "tor" ]; then
-  echo "Switching to Tor-only mode..."
-  sed -i '/^#onlynet=onion/ s/^#//' "$CONF_FILE"
-  sed -i '/^#proxy=tor:9050/ s/^#//' "$CONF_FILE"
+echo "Switching to ${MODE} mode..."
+
+# Rebuild config
+cp "$BASE_CONF" "$TARGET_CONF"
+if [ "$MODE" == "clearnet" ]; then
+    cat "$CLEARNET" >> "$TARGET_CONF"
 else
-  echo "Unknown mode: $MODE"
-  exit 1
+    cat "$ONION" >> "$TARGET_CONF"
 fi
 
+# Restart bitcoin-knots container
 echo "Restarting bitcoin-knots container..."
 docker compose restart bitcoin-knots

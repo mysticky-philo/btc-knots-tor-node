@@ -1,0 +1,7 @@
+# Onion-only mode
+dnsseed=0
+onlynet=onion
+listen=1
+listenonion=1
+discover=1
+proxy=tor:9050
