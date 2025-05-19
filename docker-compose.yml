@@ -3,32 +3,47 @@ services:
     build: ./tor
     container_name: tor
     restart: unless-stopped
-    ports:
-      - "9050:9050"
+    user: "100:101"
+    volumes:
+      - tor-data:/var/lib/tor
     networks:
       - tor-net
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    ports:
+      - "127.0.0.1:9050:9050"
 
   bitcoin-knots:
-    build: ./bitcoin-knots
+    build:
+      context: ./bitcoin-knots
     container_name: bitcoin-knots
     restart: unless-stopped
+    user: "bitcoin"
     depends_on:
       - tor
-    networks:
-      - tor-net
     volumes:
       - bitcoin_data:/bitcoin
-      - cookie_share:/cookie
-    entrypoint: /wait-for-tor.sh
-
-volumes:
-  bitcoin_data:
-  cookie_share:
+      - cookie_share:/cookie:rw
+    networks:
+      - tor-net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
 
 networks:
   tor-net:
-    name: tor-net
-    driver: bridge
+    internal: true
+
+volumes:
+  bitcoin_data:
+  tor-data:
+  cookie_share:

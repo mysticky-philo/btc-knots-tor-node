@@ -1,5 +1,7 @@
 FROM debian:bookworm-slim
 
+
+
 # Create non-root user
 RUN useradd -m -s /bin/bash bitcoin
 
@@ -11,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     libboost-chrono-dev libboost-test-dev libboost-thread-dev \
     libminiupnpc-dev libzmq3-dev libdb++-dev libssl-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Ensure volume path exists and is owned by 'bitcoin' before switching user
+RUN mkdir -p /bitcoin/.bitcoin && chown -R bitcoin:bitcoin /bitcoin
 
 # Clone Bitcoin Knots
 WORKDIR /opt
