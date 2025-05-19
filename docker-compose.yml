@@ -3,20 +3,21 @@ services:
     build: ./tor
     container_name: tor
     restart: unless-stopped
-    user: "100:101"
-    volumes:
-      - tor-data:/var/lib/tor
+    # Remove user to run as root inside container
     networks:
       - tor-net
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    read_only: true
     tmpfs:
       - /tmp
+      - /var/lib/tor
     ports:
       - "127.0.0.1:9050:9050"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
 
   bitcoin-knots:
     build:
@@ -41,7 +42,6 @@ services:
 
 networks:
   tor-net:
-    internal: true
 
 volumes:
   bitcoin_data:
