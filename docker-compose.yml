@@ -3,57 +3,68 @@ services:
     build: ./tor
     container_name: tor
     restart: unless-stopped
-    user: "100:101"  # run as the tor user
-    volumes:
-      - tor-data:/var/lib/tor:rw
-      - ./tor/torrc:/etc/tor/torrc:ro
-    networks:
-      - tor-net
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    read_only: true
-    tmpfs:
-      - /tmp
     ports:
-      - "127.0.0.1:9050:9050"
-
-  bitcoin-knots:
-    build: ./bitcoin-knots
-    container_name: bitcoin-knots
-    restart: unless-stopped
-    user: "1000:1000"
-    depends_on:
-      - tor
-    volumes:
-      - type: volume
-        source: bitcoin_data
-        target: /bitcoin
-        volume:
-          nocopy: true
-      - cookie_share:/cookie:rw
-    networks:
-      - tor-net
+      - "9050:9050"
     dns:
       - 1.1.1.1
       - 8.8.8.8
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    read_only: true
-    tmpfs:
-      - /tmp
 
-networks:
-  tor-net:
-    internal: true
+# services:
+#   tor:
+#     build: ./tor
+#     container_name: tor
+#     restart: unless-stopped
+#     user: "100:101"  # run as the tor user
+#     volumes:
+#       - tor-data:/var/lib/tor:rw
+#       - ./tor/torrc:/etc/tor/torrc:ro
+#     networks:
+#       - tor-net
+#     dns:
+#       - 1.1.1.1
+#       - 8.8.8.8
+#     security_opt:
+#       - no-new-privileges:true
+#     cap_drop:
+#       - ALL
+#     read_only: true
+#     tmpfs:
+#       - /tmp
+#     ports:
+#       - "127.0.0.1:9050:9050"
 
-volumes:
-  bitcoin_data:
-  cookie_share:
-  tor-data:
+#   bitcoin-knots:
+#     build: ./bitcoin-knots
+#     container_name: bitcoin-knots
+#     restart: unless-stopped
+#     user: "1000:1000"
+#     depends_on:
+#       - tor
+#     volumes:
+#       - type: volume
+#         source: bitcoin_data
+#         target: /bitcoin
+#         volume:
+#           nocopy: true
+#       - cookie_share:/cookie:rw
+#     networks:
+#       - tor-net
+#     dns:
+#       - 1.1.1.1
+#       - 8.8.8.8
+#     security_opt:
+#       - no-new-privileges:true
+#     cap_drop:
+#       - ALL
+#     read_only: true
+#     tmpfs:
+#       - /tmp
+
+# networks:
+#   tor-net:
+#     internal: true
+
+# volumes:
+#   bitcoin_data:
+#   cookie_share:
+#   tor-data:
