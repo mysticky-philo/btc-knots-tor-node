@@ -28,7 +28,7 @@ services:
     depends_on:
       - tor
     volumes:
-      - bitcoin_data:/bitcoin
+      - bitcoin_data:/bitcoin:rw
       - cookie_share:/cookie:rw
     networks:
       - tor-net
