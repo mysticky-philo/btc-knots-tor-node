@@ -18,9 +18,7 @@ RUN mkdir -p /bitcoin/.bitcoin && chown -R bitcoin:bitcoin /bitcoin
 # Clone Bitcoin Knots
 WORKDIR /opt
 # Clone Bitcoin Knots at specific release tag
-RUN git clone https://github.com/bitcoinknots/bitcoin.git --branch v28.1.knots20250305 knots
-
-
+RUN git clone https://github.com/bitcoinknots/bitcoin.git --branch v29.1.knots20250903 knots
 
 # Build
 WORKDIR /opt/knots
