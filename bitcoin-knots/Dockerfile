@@ -2,12 +2,10 @@ FROM debian:bookworm-slim
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
-    git build-essential libtool autotools-dev automake pkg-config \
-    bsdmainutils curl netcat-openbsd \
-    libevent-dev libboost-system-dev libboost-filesystem-dev \
-    libboost-chrono-dev libboost-test-dev libboost-thread-dev \
-    libminiupnpc-dev libzmq3-dev libdb++-dev libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+    build-essential cmake git ninja-build pkg-config \
+    libboost-filesystem-dev libboost-system-dev libboost-test-dev \
+    libdb++-dev libevent-dev libsqlite3-dev libssl-dev \
+ && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN useradd -m -s /bin/bash bitcoin
@@ -22,11 +20,11 @@ RUN git clone https://github.com/bitcoinknots/bitcoin.git --branch v29.1.knots20
 
 # Build
 WORKDIR /opt/knots
-RUN ./autogen.sh && ./configure --without-gui --disable-tests && make -j$(nproc) && make install
-
+RUN cmake -S . -B build -DBUILD_GUI=OFF -DBUILD_TESTS=OFF \
+ && cmake --build build -j$(nproc) \
+ && cmake --install build
 
 # Copy config and entrypoint
-
 COPY wait-for-tor.sh /wait-for-tor.sh
 RUN chmod +x /wait-for-tor.sh
 COPY bitcoin.conf /home/bitcoin/.bitcoin/bitcoin.conf
